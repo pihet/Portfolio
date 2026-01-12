@@ -1,0 +1,27 @@
+# Secrets (민감한 정보)
+backend-secrets.yaml
+
+# AWS CLI 설치 파일들
+aws/
+awscliv2.zip
+kubectl
+
+# Zone Identifier 파일들
+*.Zone.Identifier
+
+# Helm 차트 압축 파일
+*.tgz
+
+# 불필요한 폴더들 (데이터 파이프라인, 프론트/백엔드만 사용)
+flink/
+kafka/
+kafka-ui/
+mariadb/
+
+# README 파일 중복
+readme.md
+get_helm.sh
+get_helm.sh:Zone.Identifier
+kafka-32.4.3.tgz:Zone.Identifier
+readme.md:Zone.Identifier
+

@@ -1,0 +1,47 @@
+# Stage 1: 빌드 단계
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# package.json과 package-lock.json 복사
+COPY package*.json ./
+
+# 의존성 설치
+RUN npm ci
+
+# 소스 코드 복사
+COPY . .
+
+# 환경 변수 설정 (빌드 타임에 주입)
+# 기본값을 빈 문자열로 설정하여 --build-arg 없이도 빌드 가능
+ARG VITE_API_BASE_URL=""
+ARG VITE_POWER_BI_SAFE_DRIVING_URL=""
+ARG VITE_POWER_BI_DELINQUENT_URL=""
+ARG VITE_POWER_BI_MISSING_PERSON_URL=""
+ARG VITE_POWER_BI_NTS_MONITORING_URL=""
+ARG VITE_POWER_BI_POLICE_MISSING_PERSON_URL=""
+ARG VITE_POWER_BI_BEST_DRIVER_URL=""
+
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_POWER_BI_SAFE_DRIVING_URL=$VITE_POWER_BI_SAFE_DRIVING_URL
+ENV VITE_POWER_BI_DELINQUENT_URL=$VITE_POWER_BI_DELINQUENT_URL
+ENV VITE_POWER_BI_MISSING_PERSON_URL=$VITE_POWER_BI_MISSING_PERSON_URL
+ENV VITE_POWER_BI_NTS_MONITORING_URL=$VITE_POWER_BI_NTS_MONITORING_URL
+ENV VITE_POWER_BI_POLICE_MISSING_PERSON_URL=$VITE_POWER_BI_POLICE_MISSING_PERSON_URL
+ENV VITE_POWER_BI_BEST_DRIVER_URL=$VITE_POWER_BI_BEST_DRIVER_URL
+
+# 프로덕션 빌드
+RUN npm run build
+
+# Stage 2: 실행 단계 (Nginx)
+FROM nginx:alpine
+
+# 빌드된 파일 복사
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Nginx 설정
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
