@@ -1,0 +1,43 @@
+# Stage 1: Build React Frontend
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY aws_eks/frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy frontend source code
+COPY aws_eks/frontend ./
+
+# Build arguments
+ARG VITE_API_BASE_URL=""
+ARG VITE_POWER_BI_SAFE_DRIVING_URL=""
+ARG VITE_POWER_BI_DELINQUENT_URL=""
+ARG VITE_POWER_BI_MISSING_PERSON_URL=""
+ARG VITE_POWER_BI_NTS_MONITORING_URL=""
+ARG VITE_POWER_BI_POLICE_MISSING_PERSON_URL=""
+ARG VITE_POWER_BI_BEST_DRIVER_URL=""
+
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_POWER_BI_SAFE_DRIVING_URL=$VITE_POWER_BI_SAFE_DRIVING_URL
+ENV VITE_POWER_BI_DELINQUENT_URL=$VITE_POWER_BI_DELINQUENT_URL
+ENV VITE_POWER_BI_MISSING_PERSON_URL=$VITE_POWER_BI_MISSING_PERSON_URL
+ENV VITE_POWER_BI_NTS_MONITORING_URL=$VITE_POWER_BI_NTS_MONITORING_URL
+ENV VITE_POWER_BI_POLICE_MISSING_PERSON_URL=$VITE_POWER_BI_POLICE_MISSING_PERSON_URL
+ENV VITE_POWER_BI_BEST_DRIVER_URL=$VITE_POWER_BI_BEST_DRIVER_URL
+
+# Build production bundle
+RUN npm run build
+
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY aws_eks/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
