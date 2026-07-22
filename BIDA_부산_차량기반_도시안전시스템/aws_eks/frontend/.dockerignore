@@ -61,10 +61,6 @@ README.md
 *.md
 API_URL_CONFIG.md
 
-# Docker files (자기 자신 제외)
-Dockerfile
-docker-compose.yml
-.dockerignore
 
 # Credentials and secrets
 *credentials*
