@@ -1,5 +1,13 @@
 // API URL 자동 감지: 환경 변수가 있으면 사용, 없으면 현재 호스트 기반으로 자동 설정
 export const getApiBaseUrl = (): string => {
+  // 배포 시에는 빌드 인자로 전달한 API URL을 우선 사용한다.
+  // 예: https://<fastapi-service-domain>
+  // Cloudtype에서 프론트엔드와 백엔드를 서로 다른 배포환경에 둔 경우에도 동작한다.
+  const envApiUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (envApiUrl) {
+    return envApiUrl.replace(/\/$/, '');
+  }
+
   // 현재 페이지의 호스트를 기반으로 API URL 생성
   const hostname = window.location.hostname;
   
@@ -9,11 +17,6 @@ export const getApiBaseUrl = (): string => {
   }
   
   // 개발 환경: 환경 변수가 있으면 사용, 없으면 localhost
-  const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-  if (envApiUrl && envApiUrl.trim() !== '') {
-    return envApiUrl;
-  }
-  
   // 기본값: localhost
   return 'http://localhost:8000';
 };
